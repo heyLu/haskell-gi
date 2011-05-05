@@ -56,8 +56,7 @@ getPrefix ns = do
     cfg <- config
     case M.lookup ns (prefixes cfg) of
         Just p -> return p
-        Nothing -> error $
-            "no prefix defined for namespace " ++ show ns
+        Nothing -> return ns
 
 lowerName (Named ns s _) = do
     cfg <- config
