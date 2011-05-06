@@ -115,6 +115,7 @@ haskellBasicType TUTF8    = typeOf ""
 haskellBasicType TFloat   = typeOf (0 :: Float)
 haskellBasicType TDouble  = typeOf (0 :: Double)
 haskellBasicType TUniChar = typeOf ('\0' :: Char)
+haskellBasicType TFileName= typeOf ""
 haskellBasicType t        = error $ "haskellBasicType: " ++ show t
 
 haskellType :: Type -> TypeRep

@@ -236,8 +236,19 @@ genStruct :: (Named Struct) -> CodeGen ()
 genStruct n@(Named _ name (Struct _fields)) = do
   line $ "-- struct " ++ name
   name' <- upperName n
-  line $ "data " ++ name' ++ " = " ++ name' ++ " (Ptr " ++ name' ++ ")"
-  -- XXX: Generate code for fields.
+  line $ "data " ++ name' ++ " = " ++ name'
+  case _fields of
+    [] -> return ()
+    _  -> indent $ do
+      line "{"
+      indent $ do
+        mapM_ (\f -> line $ (lcFirst . declFromField $ f) ++ ",") (init _fields)
+        line . lcFirst . declFromField $ (last _fields)
+      line $ "} deriving (Show, Eq)"
+
+declFromField :: Field -> String
+declFromField f = (underscoreToCase $ fieldName f) ++
+                  " :: " ++ (show . haskellType . fieldType $ f)
 
 genEnum :: Named Enumeration -> CodeGen ()
 genEnum n@(Named _ name (Enumeration _fields)) = do
