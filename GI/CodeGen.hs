@@ -56,8 +56,7 @@ getPrefix ns = do
     cfg <- config
     case M.lookup ns (prefixes cfg) of
         Just p -> return p
-        Nothing -> error $
-            "no prefix defined for namespace " ++ show ns
+        Nothing -> return ns
 
 lowerName (Named ns s _) = do
     cfg <- config
@@ -240,8 +239,17 @@ genEnum :: Named Enumeration -> CodeGen ()
 genEnum n@(Named _ name (Enumeration _fields)) = do
   line $ "-- enum " ++ name
   name' <- upperName n
-  line $ "data " ++ name' ++ " = " ++ name'
+  line $ "data " ++ name' ++ " = " ++ startWithUpper (fst $ head _fields)
   -- XXX: Generate code for fields.
+  indent $ do
+    mapM_ (\(fName, _) -> line $ "| " ++ startWithUpper fName) (tail _fields)
+    line $ "deriving (Show, Enum, Eq)"
+
+startWithUpper (c:cs) = toUpper c : underscoreToCase cs
+
+underscoreToCase []         = []
+underscoreToCase ('_':c:rs) = toUpper c : underscoreToCase rs
+underscoreToCase (c:rs)     = c : underscoreToCase rs
 
 genFlags :: Named Flags -> CodeGen ()
 genFlags n@(Named _ name (Flags (Enumeration _fields))) = do
