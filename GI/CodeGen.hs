@@ -48,8 +48,11 @@ escapeReserved "in" = "in_"
 escapeReserved "data" = "data_"
 escapeReserved s = s
 
-ucFirst (x:xs) = toUpper x : map toLower xs
-ucFirst "" = error "ucFirst: empty string"
+-- Start with an upper case character
+ucFirst (c:cs) = toUpper c : cs
+
+-- Start with a lower case character
+lcFirst (c:cs) = toLower c : cs
 
 getPrefix :: String -> CodeGen String
 getPrefix ns = do
@@ -240,13 +243,11 @@ genEnum :: Named Enumeration -> CodeGen ()
 genEnum n@(Named _ name (Enumeration _fields)) = do
   line $ "-- enum " ++ name
   name' <- upperName n
-  line $ "data " ++ name' ++ " = " ++ startWithUpper (fst $ head _fields)
-  -- XXX: Generate code for fields.
+  line $ "data " ++ name' ++ " = " ++ ucFirst (fst $ head _fields)
   indent $ do
-    mapM_ (\(fName, _) -> line $ "| " ++ startWithUpper fName) (tail _fields)
+    mapM_ (\(fName, _) -> line $ "| " ++ ucFirst fName) (tail _fields)
     line $ "deriving (Show, Enum, Eq)"
 
-startWithUpper (c:cs) = toUpper c : underscoreToCase cs
 
 underscoreToCase []         = []
 underscoreToCase ('_':c:rs) = toUpper c : underscoreToCase rs
