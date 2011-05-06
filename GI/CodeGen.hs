@@ -253,10 +253,11 @@ genEnum :: Named Enumeration -> CodeGen ()
 genEnum n@(Named _ name (Enumeration _fields)) = do
   line $ "-- enum " ++ name
   name' <- upperName n
-  line $ "data " ++ name' ++ " = " ++ ucFirst (fst $ head _fields)
+  line $ "data " ++ name' ++ " = " ++ haskellName (fst $ head _fields)
   indent $ do
-    mapM_ (\(fName, _) -> line $ "| " ++ ucFirst fName) (tail _fields)
+    mapM_ (\(fName, _) -> line $ "| " ++ haskellName fName) (tail _fields)
     line $ "deriving (Show, Enum, Eq)"
+ where haskellName = ucFirst . underscoreToCase
 
 
 underscoreToCase []         = []
